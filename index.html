@@ -1,137 +1,108 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#101531">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Dompet Digital Cerdas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <main>
-<header>
-    <h1>Dompet Digital Cerdas</h1>
-    <button class="sm" id="theme" type="button">Ganti tema</button>
-</header>
-
-<p id="stor" class="mu" role="status" hidden>
-Penyimpanan browser tidak aktif.
-</p>
-
+<header><h1>Dompet Digital Cerdas</h1><button class="sm" id="theme" type="button" aria-label="Ganti tema">Ganti tema</button></header>
+<p id="stor" class="mu" role="status" hidden>Penyimpanan browser tidak aktif di tampilan ini, jadi data hilang saat halaman ditutup. Buka lewat tautan atau file sendiri agar tersimpan.</p>
+<div class="mnav"><button class="sm" id="mp" type="button" aria-label="Bulan sebelumnya">‹</button><b id="mlbl"></b><button class="sm" id="mn" type="button" aria-label="Bulan berikutnya">›</button></div>
 <div class="grid">
 
-<section class="hero full">
-    <div class="lbl">Saldo total</div>
-    <div class="big" id="saldo">Rp 0</div>
-
-    <div class="row">
-        <div class="chip">
-            <span class="lbl">Masuk bulan ini</span>
-            <b id="inM"></b>
-        </div>
-        <div class="chip">
-            <span class="lbl">Keluar bulan ini</span>
-            <b id="outM"></b>
-        </div>
-        <div class="chip">
-            <span class="lbl">Rasio tabung</span>
-            <b id="rate"></b>
-        </div>
-    </div>
-
-    <div class="row" id="wals"></div>
-
-    <div class="track">
-        <div class="fill" id="fill"></div>
-        <div class="tick" id="tick"></div>
-        <div class="tickl" id="tickl">hari ini</div>
-    </div>
-
+<section class="hero full" aria-live="polite">
+  <div class="lbl">Saldo total</div>
+  <div class="big" id="saldo">Rp 0</div>
+  <div class="row">
+    <div class="chip"><span class="lbl">Masuk</span><b id="inM"></b></div>
+    <div class="chip"><span class="lbl">Keluar</span><b id="outM"></b></div>
+    <div class="chip"><span class="lbl">Rasio tabung</span><b id="rate"></b></div>
+  </div>
+  <div class="row" id="wals" style="margin-top:10px"></div>
+  <div style="margin-top:20px">
+    <div class="track"><div class="fill" id="fill" style="width:0"></div><div class="tick" id="tick"></div><div class="tickl" id="tickl">hari ini</div></div>
     <p class="insight" id="insight"></p>
+  </div>
+  <div class="bud"><label for="budget" style="margin:0;color:inherit">Anggaran bulanan Rp</label><input id="budget" inputmode="numeric" autocomplete="off"></div>
+</section>
 
-    <div class="bud">
-        <label for="budget">Anggaran bulanan Rp</label>
-        <input id="budget" inputmode="numeric">
-    </div>
+<section class="full">
+  <h2>Tips cerdas</h2>
+  <ul id="tips" style="margin-top:0"></ul>
 </section>
 
 <section>
-    <h2>Catat transaksi</h2>
-
-    <div class="seg">
-        <button type="button" id="tOut" aria-pressed="true">
-            Pengeluaran
-        </button>
-        <button type="button" id="tIn" aria-pressed="false">
-            Pemasukan
-        </button>
-    </div>
-
-    <label for="amount">Jumlah (Rp)</label>
-    <input id="amount" inputmode="numeric"
-    placeholder="mis. 25.000">
-
-    <div class="row">
-        <div class="field">
-            <label for="cat">Kategori</label>
-            <select id="cat"></select>
-        </div>
-        <div class="field">
-            <label for="date">Tanggal</label>
-            <input id="date" type="date">
-        </div>
-    </div>
-
-    <label for="wal">Dompet</label>
-    <select id="wal">
-        <option value="Tunai">💵 Tunai</option>
-        <option value="Bank">🏦 Bank</option>
-        <option value="E-wallet">📱 E-wallet</option>
-    </select>
-
-    <label for="note">Catatan</label>
-    <input id="note" placeholder="Opsional">
-
-    <button id="add" type="button">Simpan transaksi</button>
+  <h2>Catat transaksi</h2>
+  <div class="seg" role="group" aria-label="Jenis transaksi">
+    <button type="button" id="tOut" aria-pressed="true">Pengeluaran</button>
+    <button type="button" id="tIn" aria-pressed="false">Pemasukan</button>
+  </div>
+  <label for="amount">Jumlah (Rp)</label>
+  <input id="amount" inputmode="numeric" placeholder="mis. 25.000" autocomplete="off">
+  <div class="row" style="flex-wrap:nowrap"><div style="flex:1;min-width:0"><label for="cat">Kategori</label><select id="cat"></select></div><div style="flex:1;min-width:0"><label for="date">Tanggal</label><input id="date" type="date"></div></div>
+  <label for="wal">Dompet</label>
+  <select id="wal"><option value="Tunai">💵 Tunai</option><option value="Bank">🏦 Bank</option><option value="E-wallet">📱 E-wallet</option></select>
+  <label for="note">Catatan (opsional)</label>
+  <input id="note" maxlength="60" placeholder="mis. makan siang" autocomplete="off">
+  <button class="go" id="save" type="button">Simpan transaksi</button>
+  <div id="msg" class="mu" style="margin-top:8px" role="status"></div>
 </section>
 
 <section>
-    <h2>Riwayat transaksi</h2>
-    <div class="row">
-        <select id="filter">
-            <option value="all">Semua transaksi</option>
-            <option value="in">Pemasukan</option>
-            <option value="out">Pengeluaran</option>
-        </select>
-    </div>
-    <div id="history"></div>
+  <h2>Target tabungan</h2>
+  <label for="gname" style="margin-top:0">Nama target</label>
+  <input id="gname" maxlength="30">
+  <label for="gtarget">Jumlah target (Rp)</label>
+  <input id="gtarget" inputmode="numeric" autocomplete="off">
+  <div class="gbar"><i id="gfill" style="width:0"></i></div>
+  <div id="gtxt" class="mu"></div>
+  <div class="gset"><input id="gadd" inputmode="numeric" placeholder="Setor (Rp)" aria-label="Jumlah setoran" autocomplete="off"><button class="sm" id="gbtn" type="button">Setor</button></div>
 </section>
 
 <section>
-    <h2>Target tabungan</h2>
-    <label for="goalName">Nama target</label>
-    <input id="goalName" placeholder="Dana darurat">
-
-    <label for="goalTarget">Target (Rp)</label>
-    <input id="goalTarget" inputmode="numeric">
-
-    <label for="goalSaved">Tabungan terkumpul (Rp)</label>
-    <input id="goalSaved" inputmode="numeric">
-
-    <button id="saveGoal" type="button">Simpan target</button>
-    <div id="goalProgress"></div>
+  <h2>Pengeluaran per kategori</h2>
+  <div class="donut"><svg id="donut" viewBox="0 0 120 120" role="img" aria-label="Diagram pengeluaran per kategori"></svg><div class="leg" id="leg"></div></div>
 </section>
 
 <section>
-    <h2>Ekspor data</h2>
-    <button id="export" type="button">Unduh CSV</button>
+  <h2>7 hari terakhir</h2>
+  <svg class="bars" id="bars" viewBox="0 0 280 120" role="img" aria-label="Pengeluaran 7 hari terakhir" style="width:100%"></svg>
+  <div class="tiles" style="margin-top:12px" id="tiles"></div>
+</section>
+
+<section>
+  <h2>Batas per kategori</h2>
+  <div id="lims"></div>
+</section>
+
+<section>
+  <h2>Tagihan rutin</h2>
+  <input id="bn" maxlength="24" placeholder="Nama tagihan" aria-label="Nama tagihan">
+  <div class="gset"><input id="ba" inputmode="numeric" placeholder="Jumlah (Rp)" aria-label="Jumlah tagihan"><input id="bd" inputmode="numeric" placeholder="Tgl 1-31" aria-label="Tanggal jatuh tempo" style="width:100px"><button class="sm" id="bb" type="button">Tambah</button></div>
+  <ul id="bl"></ul>
+</section>
+
+<section class="full">
+  <h2>Riwayat</h2>
+  <div class="seg" style="--n:3" role="group" aria-label="Filter riwayat">
+    <button type="button" data-f="all" aria-pressed="true">Semua</button>
+    <button type="button" data-f="in" aria-pressed="false">Masuk</button>
+    <button type="button" data-f="out" aria-pressed="false">Keluar</button>
+  </div>
+  <input id="q" placeholder="Cari catatan atau kategori" aria-label="Cari transaksi" style="margin-top:10px" autocomplete="off">
+  <ul id="list"></ul>
+  <div class="row" style="margin-top:12px"><button class="sm" id="demo" type="button" hidden>Isi data contoh</button><button class="sm" id="csv" type="button">Salin data CSV</button><button class="sm" id="rst" type="button">Hapus semua data</button></div>
+  <div id="tmsg" class="mu" role="status" style="margin-top:8px"></div>
 </section>
 
 </div>
 </main>
-
 <script src="script.js"></script>
 </body>
-      </html>
-      
+    </html>
+    
