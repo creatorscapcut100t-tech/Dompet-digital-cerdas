@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dompet Digital Cerdas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F2F4FA;--card:#fff;--ink:#1B2354;--mute:#5F678F;--line:#DDE1F0;--acc:#F2B33D;--on-acc:#1B2354;--in:#168A67;--out:#D2493F;--track:#E4E8F5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101531;--card:#1A2150;--ink:#EEF0FB;--mute:#9AA3D0;--line:#2D3670;--in:#3CC49A;--out:#FF7A6E;--track:#2A3269}}
+:root[data-theme="dark"]{--bg:#101531;--card:#1A2150;--ink:#EEF0FB;--mute:#9AA3D0;--line:#2D3670;--in:#3CC49A;--out:#FF7A6E;--track:#2A3269}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 Figtree,system-ui,sans-serif}
+main{max-width:900px;margin:0 auto;padding:18px 16px 56px}
+h1,h2,.big{font-family:"Bricolage Grotesque",Figtree,system-ui,sans-serif}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+h1{font-size:1.2rem;margin:0;font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.05rem;margin:0 0 12px;font-weight:700}
+.grid{display:grid;gap:14px;grid-template-columns:1fr}
+@media(min-width:780px){.grid{grid-template-columns:1fr 1fr}.full{grid-column:1/-1}}
+section{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;min-width:0}
+.hero{background:#1B2354;color:#fff;border-color:#1B2354;--hm:#B7BEE6}
+.hero .lbl{color:var(--hm);font-size:.88rem}
+.big{font-size:clamp(2.3rem,8vw,3.4rem);font-weight:800;letter-spacing:-.035em;line-height:1.05;margin:2px 0 14px;word-break:break-word}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.chip{flex:1 1 130px;background:rgba(255,255,255,.1);border-radius:12px;padding:9px 12px}
+.chip b{display:block;font-weight:600}
+.track{position:relative;height:16px;border-radius:8px;background:rgba(255,255,255,.18)}
+.fill{height:100%;border-radius:8px;background:var(--acc);transition:width .5s ease}
+.fill.over{background:#FF7A6E}
+.tick{position:absolute;top:-5px;width:2px;height:26px;background:#fff;border-radius:1px}
+.tickl{position:absolute;top:26px;transform:translateX(-50%);font-size:.74rem;color:var(--hm);white-space:nowrap}
+.insight{margin:36px 0 0;font-size:.95rem}
+.bud{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:.88rem;color:var(--hm);flex-wrap:wrap}
+.bud input{width:150px;background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.28);color:#fff}
+label{display:block;font-size:.84rem;color:var(--mute);margin:12px 0 4px}
+input,select{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+.seg{display:grid;grid-template-columns:repeat(var(--n,2),1fr);gap:6px;background:var(--bg);padding:4px;border-radius:12px;border:1px solid var(--line)}
+.seg button{border:0;padding:9px;border-radius:9px;background:transparent;color:var(--mute);font:600 .92rem Figtree,sans-serif;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:0 0 0 1.5px var(--ink) inset}
+.go{width:100%;margin-top:16px;padding:13px;border:0;border-radius:12px;background:var(--acc);color:var(--on-acc);font:700 1rem Figtree,sans-serif;cursor:pointer}
+.sm{border:1px solid var(--line);background:none;color:var(--ink);border-radius:10px;padding:8px 12px;font:600 .88rem Figtree,sans-serif;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.mu{color:var(--mute);font-size:.92rem}
+.donut{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.donut svg{width:150px;height:150px;flex:none}
+.leg{flex:1 1 160px;font-size:.9rem}
+.leg div{display:flex;justify-content:space-between;gap:8px;padding:3px 0}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{background:var(--bg);border-radius:12px;padding:11px 12px}
+.tile span{font-size:.8rem;color:var(--mute)}
+.tile b{display:block;font-family:"Bricolage Grotesque",Figtree,sans-serif;font-size:1.05rem;word-break:break-word}
+.bars rect{fill:var(--mute);opacity:.4}.bars rect.t{fill:var(--acc);opacity:1}
+.bars text{fill:var(--mute);font-size:9px;text-anchor:middle}
+.gbar{height:12px;border-radius:6px;background:var(--track);margin:10px 0 6px}
+.gbar i{display:block;height:100%;border-radius:6px;background:var(--in);transition:width .5s}
+.gset{display:flex;gap:8px;margin-top:10px}
+.lim{margin-bottom:14px}.lh{display:flex;justify-content:space-between;align-items:center;gap:10px}.lh input{width:140px;padding:7px 10px}
+ul{list-style:none;margin:10px 0 0;padding:0}
+li{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:1.15rem;flex:none}
+li .m{flex:1;min-width:0}
+li .m b{display:block;font-weight:600;overflow-wrap:anywhere}
+li .m span{font-size:.8rem;color:var(--mute)}
+.amt{font-weight:600;white-space:nowrap}.in{color:var(--in)}.out{color:var(--out)}
+.del{border:0;background:none;color:var(--mute);font-size:1.2rem;cursor:pointer;padding:4px 8px;border-radius:8px}
+@media (prefers-reduced-motion:reduce){.fill,.gbar i{transition:none}}
+</style>
+</head>
+<body>
+<main>
+<header><h1>Dompet Digital Cerdas</h1><button class="sm" id="theme" type="button" aria-label="Ganti tema">Ganti tema</button></header>
+<div class="grid">
+
+<section class="hero full" aria-live="polite">
+  <div class="lbl">Saldo total</div>
+  <div class="big" id="saldo">Rp 0</div>
+  <div class="row">
+    <div class="chip"><span class="lbl">Masuk bulan ini</span><b id="inM"></b></div>
+    <div class="chip"><span class="lbl">Keluar bulan ini</span><b id="outM"></b></div>
+    <div class="chip"><span class="lbl">Rasio tabung</span><b id="rate"></b></div>
+  </div>
+  <div class="row" id="wals" style="margin-top:10px"></div>
+  <div style="margin-top:20px">
+    <div class="track"><div class="fill" id="fill" style="width:0"></div><div class="tick" id="tick"></div><div class="tickl" id="tickl">hari ini</div></div>
+    <p class="insight" id="insight"></p>
+  </div>
+  <div class="bud"><label for="budget" style="margin:0;color:inherit">Anggaran bulanan Rp</label><input id="budget" inputmode="numeric" autocomplete="off"></div>
+</section>
+
+<section>
+  <h2>Catat transaksi</h2>
+  <div class="seg" role="group" aria-label="Jenis transaksi">
+    <button type="button" id="tOut" aria-pressed="true">Pengeluaran</button>
+    <button type="button" id="tIn" aria-pressed="false">Pemasukan</button>
+  </div>
+  <label for="amount">Jumlah (Rp)</label>
+  <input id="amount" inputmode="numeric" placeholder="mis. 25000" autocomplete="off">
+  <div class="row" style="flex-wrap:nowrap"><div style="flex:1;min-width:0"><label for="cat">Kategori</label><select id="cat"></select></div><div style="flex:1;min-width:0"><label for="date">Tanggal</label><input id="date" type="date"></div></div>
+  <label for="wal">Dompet</label>
+  <select id="wal"><option value="Tunai">💵 Tunai</option><option value="Bank">🏦 Bank</option><option value="E-wallet">📱 E-wallet</option></select>
+  <label for="note">Catatan (opsional)</label>
+  <input id="note" maxlength="60" placeholder="mis. makan siang" autocomplete="off">
+  <button class="go" id="save" type="button">Simpan transaksi</button>
+  <div id="msg" class="mu" style="margin-top:8px" role="status"></div>
+</section>
+
+<section>
+  <h2>Target tabungan</h2>
+  <label for="gname" style="margin-top:0">Nama target</label>
+  <input id="gname" maxlength="30">
+  <label for="gtarget">Jumlah target (Rp)</label>
+  <input id="gtarget" inputmode="numeric" autocomplete="off">
+  <div class="gbar"><i id="gfill" style="width:0"></i></div>
+  <div id="gtxt" class="mu"></div>
+  <div class="gset"><input id="gadd" inputmode="numeric" placeholder="Setor (Rp)" aria-label="Jumlah setoran" autocomplete="off"><button class="sm" id="gbtn" type="button">Setor</button></div>
+</section>
+
+<section>
+  <h2>Pengeluaran per kategori</h2>
+  <div class="donut"><svg id="donut" viewBox="0 0 120 120" role="img" aria-label="Diagram pengeluaran per kategori"></svg><div class="leg" id="leg"></div></div>
+</section>
+
+<section>
+  <h2>7 hari terakhir</h2>
+  <svg class="bars" id="bars" viewBox="0 0 280 120" role="img" aria-label="Pengeluaran 7 hari terakhir" style="width:100%"></svg>
+  <div class="tiles" style="margin-top:12px" id="tiles"></div>
+</section>
+
+<section>
+  <h2>Batas per kategori</h2>
+  <div id="lims"></div>
+</section>
+
+<section>
+  <h2>Tagihan rutin</h2>
+  <input id="bn" maxlength="24" placeholder="Nama tagihan" aria-label="Nama tagihan">
+  <div class="gset"><input id="ba" inputmode="numeric" placeholder="Jumlah (Rp)" aria-label="Jumlah tagihan"><input id="bd" inputmode="numeric" placeholder="Tgl 1-31" aria-label="Tanggal jatuh tempo" style="width:100px"><button class="sm" id="bb" type="button">Tambah</button></div>
+  <ul id="bl"></ul>
+</section>
+
+<section class="full">
+  <h2>Riwayat</h2>
+  <div class="seg" style="--n:3" role="group" aria-label="Filter riwayat">
+    <button type="button" data-f="all" aria-pressed="true">Semua</button>
+    <button type="button" data-f="in" aria-pressed="false">Masuk</button>
+    <button type="button" data-f="out" aria-pressed="false">Keluar</button>
+  </div>
+  <input id="q" placeholder="Cari catatan atau kategori" aria-label="Cari transaksi" style="margin-top:10px" autocomplete="off">
+  <ul id="list"></ul>
+  <div class="row" style="margin-top:12px"><button class="sm" id="demo" type="button" hidden>Isi data contoh</button><button class="sm" id="csv" type="button">Salin data CSV</button><button class="sm" id="rst" type="button">Hapus semua data</button></div>
+  <div id="tmsg" class="mu" role="status" style="margin-top:8px"></div>
+</section>
+
+</div>
+</main>
+<script>
+(function(){
+var CATS={out:["Makanan","Transportasi","Tagihan","Belanja","Hiburan","Kesehatan","Lainnya"],in:["Gaji","Usaha","Hadiah","Lainnya"]};
+var ICON={Makanan:"🍜",Transportasi:"🚌",Tagihan:"💡",Belanja:"🛍️",Hiburan:"🎬",Kesehatan:"💊",Gaji:"💼",Usaha:"🏪",Hadiah:"🎁",Lainnya:"📌"};
+var COL={Makanan:"#F2B33D",Transportasi:"#4C6EF5",Tagihan:"#D2493F",Belanja:"#9B5DE5",Hiburan:"#00A6A6",Kesehatan:"#2FBF71",Lainnya:"#8A93C0"};
+var KEY="dompet-cerdas-v2";
+var S={tx:[],budget:3000000,goal:{name:"Dana darurat",target:5000000,saved:0},lim:{},bills:[]};
+var type="out",filt="all",first=true;
+function $(i){return document.getElementById(i);}
+function load(){try{var r=localStorage.getItem(KEY);if(r){var d=JSON.parse(r);if(d&&Array.isArray(d.tx)){S.tx=d.tx;S.budget=+d.budget||0;if(d.goal)S.goal=d.goal;S.lim=d.lim||{};S.bills=d.bills||[];}}}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function rp(n){return "Rp "+Math.round(n).toLocaleString("id-ID");}
+function num(s){return parseInt(String(s).replace(/\D/g,""),10)||0;}
+function ds(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
+function fillCats(){var s=$("cat");s.innerHTML="";CATS[type].forEach(function(c){var o=el("option","",ICON[c]+" "+c);o.value=c;s.appendChild(o);});}
+function setType(t){type=t;$("tOut").setAttribute("aria-pressed",t==="out");$("tIn").setAttribute("aria-pressed",t==="in");fillCats();}
+function countUp(n){var e=$("saldo");if(!first||matchMedia("(prefers-reduced-motion:reduce)").matches||!n){e.textContent=rp(n);first=false;return;}first=false;var t0=performance.now();(function f(t){var p=Math.min((t-t0)/900,1),k=1-Math.pow(1-p,3);e.textContent=rp(n*k);if(p<1)requestAnimationFrame(f);})(t0);}
+function render(){
+  var now=new Date(),ym=ds(now).slice(0,7),day=now.getDate(),dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+  var tin=0,tout=0,min=0,mout=0,by={},big=null;
+  S.tx.forEach(function(t){
+    if(t.type==="in")tin+=t.amount;else tout+=t.amount;
+    if(t.date.slice(0,7)===ym){if(t.type==="in")min+=t.amount;else{mout+=t.amount;by[t.cat]=(by[t.cat]||0)+t.amount;if(!big||t.amount>big.amount)big=t;}}
+  });
+  countUp(tin-tout);
+  $("inM").textContent=rp(min);$("outM").textContent=rp(mout);
+  $("rate").textContent=min>0?Math.round((min-mout)/min*100)+"%":"-";
+  var B=S.budget,pace=day/dim,left=dim-day+1;
+  $("fill").style.width=(B>0?Math.min(mout/B,1)*100:0)+"%";
+  $("fill").className="fill"+(B>0&&mout>B?" over":"");
+  $("tick").style.left="calc("+pace*100+"% - 1px)";
+  $("tickl").style.left=Math.min(Math.max(pace*100,8),92)+"%";
+  var m;
+  if(!B)m="Isi anggaran bulanan untuk melihat ritme belanjamu.";
+  else if(!mout)m="Belum ada pengeluaran bulan ini. Jatah harianmu "+rp(B/dim)+".";
+  else if(mout>B)m="Anggaran terlampaui "+rp(mout-B)+". Tahan pengeluaran sampai akhir bulan.";
+  else if(mout>B*pace)m="Lebih cepat dari ritme. Sisa "+rp(B-mout)+" untuk "+left+" hari, cukup "+rp((B-mout)/left)+" per hari.";
+  else m="Ritme aman. Kamu bisa memakai "+rp((B-mout)/left)+" per hari untuk "+left+" hari ke depan.";
+  $("insight").textContent=m;
+  // donut
+  var C=2*Math.PI*42,keys=Object.keys(by).sort(function(a,b){return by[b]-by[a];}),acc=0,sv="",lg=$("leg");
+  lg.innerHTML="";
+  sv+='<circle cx="60" cy="60" r="42" fill="none" stroke="var(--track)" stroke-width="16"/>';
+  keys.forEach(function(k){var l=by[k]/mout*C;sv+='<circle cx="60" cy="60" r="42" fill="none" stroke="'+COL[k]+'" stroke-width="16" stroke-dasharray="'+l+' '+(C-l)+'" stroke-dashoffset="'+(-acc)+'" transform="rotate(-90 60 60)"/>';acc+=l;
+    var d=el("div"),a=el("span"),dot=el("i","dot");dot.style.background=COL[k];a.appendChild(dot);a.appendChild(document.createTextNode(k+" "+Math.round(by[k]/mout*100)+"%"));d.appendChild(a);d.appendChild(el("span","",rp(by[k])));lg.appendChild(d);});
+  sv+='<text x="60" y="58" text-anchor="middle" font-size="7" fill="var(--mute)">Keluar</text><text x="60" y="69" text-anchor="middle" font-size="9" font-weight="700" fill="var(--ink)">'+(mout>=1e6?(mout/1e6).toFixed(1).replace(".",",")+" jt":Math.round(mout/1000)+" rb")+'</text>';
+  $("donut").innerHTML=sv;
+  if(!keys.length)lg.appendChild(el("p","mu","Belum ada pengeluaran bulan ini."));
+  // bars
+  var days=[],i,mx=1,bs="";
+  for(i=6;i>=0;i--){var d0=new Date(now.getFullYear(),now.getMonth(),day-i),k=ds(d0),s=0;S.tx.forEach(function(t){if(t.type==="out"&&t.date===k)s+=t.amount;});days.push({s:s,w:d0.toLocaleDateString("id-ID",{weekday:"short"}).slice(0,3),t:i===0});if(s>mx)mx=s;}
+  days.forEach(function(d,j){var h=Math.max(d.s/mx*78,d.s?3:1),x=6+j*40;bs+='<rect class="'+(d.t?"t":"")+'" x="'+x+'" y="'+(92-h)+'" width="28" height="'+h+'" rx="5"/><text x="'+(x+14)+'" y="108">'+d.w+'</text>';});
+  $("bars").innerHTML=bs;
+  var T=$("tiles");T.innerHTML="";
+  [["Rata-rata harian",rp(mout/day)],["Proyeksi akhir bulan",rp(mout/day*dim)],["Terbesar bulan ini",big?rp(big.amount):"-"],["Kategori teratas",keys[0]?ICON[keys[0]]+" "+keys[0]:"-"]].forEach(function(r){var t=el("div","tile");t.appendChild(el("span","",r[0]));t.appendChild(el("b","",r[1]));T.appendChild(t);});
+  // goal
+  var g=S.goal,gp=g.target>0?Math.min(g.saved/g.target,1):0,surplus=min-mout;
+  $("gfill").style.width=gp*100+"%";
+  var gt=rp(g.saved)+" dari "+rp(g.target)+" ("+Math.round(gp*100)+"%)";
+  if(g.target>g.saved&&surplus>0)gt+=". Dengan surplus bulan ini, tercapai sekitar "+Math.ceil((g.target-g.saved)/surplus)+" bulan lagi.";
+  else if(g.target>0&&g.saved>=g.target)gt+=". Target tercapai!";
+  $("gtxt").textContent=gt;
+  // dompet
+  var wb={Tunai:0,Bank:0,"E-wallet":0},WI={Tunai:"💵",Bank:"🏦","E-wallet":"📱"},W=$("wals");W.innerHTML="";
+  S.tx.forEach(function(t){var w=t.w||"Tunai";wb[w]+=t.type==="in"?t.amount:-t.amount;});
+  Object.keys(wb).forEach(function(k){var c=el("div","chip");c.appendChild(el("span","lbl",WI[k]+" "+k));c.appendChild(el("b","",rp(wb[k])));W.appendChild(c);});
+  // batas
+  var LM=$("lims");LM.innerHTML="";
+  CATS.out.forEach(function(c){var sp=by[c]||0,l=S.lim[c]||0,r=el("div","lim"),h=el("div","lh"),inp=el("input");
+    inp.inputMode="numeric";inp.placeholder="Batas (Rp)";inp.setAttribute("aria-label","Batas "+c);inp.value=l?l.toLocaleString("id-ID"):"";
+    inp.onchange=function(){S.lim[c]=num(this.value);save();render();};
+    h.appendChild(el("span","",ICON[c]+" "+c));h.appendChild(inp);r.appendChild(h);
+    var b=el("div","gbar"),f=el("i");f.style.width=(l?Math.min(sp/l,1)*100:0)+"%";if(l&&sp>l)f.style.background="var(--out)";b.appendChild(f);r.appendChild(b);
+    r.appendChild(el("div","mu",l?rp(sp)+" dari "+rp(l)+(sp>l?", lewat "+rp(sp-l):", sisa "+rp(l-sp)):rp(sp)+" terpakai, belum ada batas"));LM.appendChild(r);});
+  // tagihan
+  var BL=$("bl");BL.innerHTML="";
+  S.bills.map(function(b){return{b:b,n:b.day>=day?b.day-day:dim-day+b.day};}).sort(function(a,c){return a.n-c.n;}).forEach(function(o){
+    var b=o.b,li=el("li"),ic=el("div","ic","🔔"),m=el("div","m"),x=el("button","del","\u00D7"),p=el("button","sm","Bayar");
+    ic.style.background="#F2B33D33";m.appendChild(el("b","",b.name));m.appendChild(el("span",o.n<=3?"out":"","Tanggal "+b.day+", "+(o.n===0?"hari ini":o.n+" hari lagi")));
+    p.type=x.type="button";x.setAttribute("aria-label","Hapus tagihan "+b.name);
+    x.onclick=function(){S.bills=S.bills.filter(function(q){return q.id!==b.id;});save();render();};
+    p.onclick=function(){S.tx.push({id:Date.now(),type:"out",amount:b.amount,cat:"Tagihan",note:b.name,date:ds(new Date()),w:"Bank"});save();render();};
+    li.appendChild(ic);li.appendChild(m);li.appendChild(el("div","amt",rp(b.amount)));li.appendChild(p);li.appendChild(x);BL.appendChild(li);});
+  if(!S.bills.length)BL.appendChild(el("li","mu","Belum ada tagihan rutin. Tambahkan listrik, internet, atau cicilan."));
+  // list
+  var L=$("list");L.innerHTML="";
+  var qv=$("q").value.trim().toLowerCase(),arr=S.tx.filter(function(t){return(filt==="all"||t.type===filt)&&(!qv||((t.note||"")+" "+t.cat).toLowerCase().indexOf(qv)>-1);}).sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:b.id-a.id;});
+  $("demo").hidden=S.tx.length>0;
+  if(!arr.length)L.appendChild(el("li","mu","Belum ada transaksi."));
+  arr.slice(0,40).forEach(function(t){
+    var li=el("li"),ic=el("div","ic",ICON[t.cat]||"📌");ic.style.background=(COL[t.cat]||"#2FBF71")+"33";
+    var m=el("div","m");m.appendChild(el("b","",t.note||t.cat));
+    m.appendChild(el("span","",t.cat+", "+(t.w||"Tunai")+", "+new Date(t.date+"T00:00:00").toLocaleDateString("id-ID",{day:"numeric",month:"short"})));
+    var x=el("button","del","\u00D7");x.type="button";x.setAttribute("aria-label","Hapus transaksi "+(t.note||t.cat));
+    x.onclick=function(){S.tx=S.tx.filter(function(q){return q.id!==t.id;});save();render();};
+    li.appendChild(ic);li.appendChild(m);li.appendChild(el("div","amt "+t.type,(t.type==="in"?"+":"-")+rp(t.amount)));li.appendChild(x);L.appendChild(li);
+  });
+}
+$("tOut").onclick=function(){setType("out");};
+$("tIn").onclick=function(){setType("in");};
+$("save").onclick=function(){
+  var v=num($("amount").value),m=$("msg");
+  if(v<=0){m.textContent="Isi jumlah lebih dari 0 dulu.";$("amount").focus();return;}
+  S.tx.push({id:Date.now(),type:type,amount:v,cat:$("cat").value,note:$("note").value.trim(),date:$("date").value||ds(new Date()),w:$("wal").value});
+  $("amount").value="";$("note").value="";m.textContent="Transaksi tersimpan.";save();render();
+};
+$("budget").onchange=function(){S.budget=num(this.value);this.value=S.budget?S.budget.toLocaleString("id-ID"):"";save();render();};
+$("gname").onchange=function(){S.
