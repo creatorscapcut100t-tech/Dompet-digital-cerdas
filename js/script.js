@@ -1,430 +1,150 @@
-
-(function () {
-"use strict";
-
-const KEY = "dompet-cerdas-v3";
-
-const CATS = {
-    out: ["Makanan", "Transportasi", "Tagihan", "Belanja", "Hiburan", "Kesehatan", "Lainnya"],
-    in: ["Gaji", "Usaha", "Hadiah", "Lainnya"]
+(function(){
+var CATS={out:["Makanan","Transportasi","Tagihan","Belanja","Hiburan","Kesehatan","Lainnya"],in:["Gaji","Usaha","Hadiah","Lainnya"]};
+var ICON={Makanan:"🍜",Transportasi:"🚌",Tagihan:"💡",Belanja:"🛍️",Hiburan:"🎬",Kesehatan:"💊",Gaji:"💼",Usaha:"🏪",Hadiah:"🎁",Lainnya:"📌"};
+var COL={Makanan:"#F2B33D",Transportasi:"#4C6EF5",Tagihan:"#D2493F",Belanja:"#9B5DE5",Hiburan:"#00A6A6",Kesehatan:"#2FBF71",Lainnya:"#8A93C0"};
+var KEY="dompet-cerdas-v2";
+var S={tx:[],budget:3000000,goal:{name:"Dana darurat",target:5000000,saved:0},lim:{},bills:[]};
+var type="out",filt="all",first=true,mo=0,firstR=true;
+function $(i){return document.getElementById(i);}
+function load(){try{var r=localStorage.getItem(KEY);if(r){var d=JSON.parse(r);if(d&&Array.isArray(d.tx)){S.tx=d.tx;S.budget=+d.budget||0;if(d.goal)S.goal=d.goal;S.lim=d.lim||{};S.bills=d.bills||[];}}}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function nf(n){return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,".");}
+function rp(n){return "Rp "+nf(n);}
+function num(s){return parseInt(String(s).replace(/\D/g,""),10)||0;}
+function ds(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
+function fillCats(){var s=$("cat");s.innerHTML="";CATS[type].forEach(function(c){var o=el("option","",ICON[c]+" "+c);o.value=c;s.appendChild(o);});}
+function setType(t){type=t;$("tOut").setAttribute("aria-pressed",t==="out");$("tIn").setAttribute("aria-pressed",t==="in");fillCats();}
+function countUp(n){var e=$("saldo");if(!first||matchMedia("(prefers-reduced-motion:reduce)").matches||!n){e.textContent=rp(n);first=false;return;}first=false;var t0=performance.now();(function f(t){var p=Math.min((t-t0)/900,1),k=1-Math.pow(1-p,3);e.textContent=rp(n*k);if(p<1)requestAnimationFrame(f);})(t0);}
+function render(){
+  var fr=firstR;firstR=false;var now=new Date(),ref=new Date(now.getFullYear(),now.getMonth()+mo,1),ym=ds(ref).slice(0,7),dim=new Date(ref.getFullYear(),ref.getMonth()+1,0).getDate(),day=mo===0?now.getDate():dim;
+  $("mlbl").textContent=ref.toLocaleDateString("id-ID",{month:"long",year:"numeric"});$("mn").disabled=mo>=0;$("tick").style.display=$("tickl").style.display=mo?"none":"";
+  var tin=0,tout=0,min=0,mout=0,by={},big=null;
+  S.tx.forEach(function(t){
+    if(t.type==="in")tin+=t.amount;else tout+=t.amount;
+    if(t.date.slice(0,7)===ym){if(t.type==="in")min+=t.amount;else{mout+=t.amount;by[t.cat]=(by[t.cat]||0)+t.amount;if(!big||t.amount>big.amount)big=t;}}
+  });
+  countUp(tin-tout);
+  $("inM").textContent=rp(min);$("outM").textContent=rp(mout);
+  $("rate").textContent=min>0?Math.round((min-mout)/min*100)+"%":"-";
+  var B=S.budget,pace=day/dim,left=dim-day+1;
+  $("fill").style.width=(B>0?Math.min(mout/B,1)*100:0)+"%";
+  $("fill").className="fill"+(B>0&&mout>B?" over":"");
+  $("tick").style.left="calc("+pace*100+"% - 1px)";
+  $("tickl").style.left=Math.min(Math.max(pace*100,8),92)+"%";
+  var m;
+  if(!B)m="Isi anggaran bulanan untuk melihat ritme belanjamu.";
+  else if(!mout)m="Belum ada pengeluaran bulan ini. Jatah harianmu "+rp(B/dim)+".";
+  else if(mout>B)m="Anggaran terlampaui "+rp(mout-B)+". Tahan pengeluaran sampai akhir bulan.";
+  else if(mout>B*pace)m="Lebih cepat dari ritme. Sisa "+rp(B-mout)+" untuk "+left+" hari, cukup "+rp((B-mout)/left)+" per hari.";
+  else m="Ritme aman. Kamu bisa memakai "+rp((B-mout)/left)+" per hari untuk "+left+" hari ke depan.";
+  if(mo<0)m="Total pengeluaran "+rp(mout)+(B?", "+Math.round(mout/B*100)+"% dari anggaran bulanan.":".");
+  $("insight").textContent=m;
+  // donut
+  var C=2*Math.PI*42,keys=Object.keys(by).sort(function(a,b){return by[b]-by[a];}),acc=0,sv="",lg=$("leg");
+  lg.innerHTML="";
+  sv+='<circle cx="60" cy="60" r="42" fill="none" stroke="var(--track)" stroke-width="16"/>';
+  keys.forEach(function(k){var l=by[k]/mout*C;sv+='<circle cx="60" cy="60" r="42" fill="none" stroke="'+COL[k]+'" stroke-width="16" stroke-dasharray="'+l+' '+(C-l)+'" stroke-dashoffset="'+(-acc)+'" transform="rotate(-90 60 60)"/>';acc+=l;
+    var d=el("div"),a=el("span"),dot=el("i","dot");dot.style.background=COL[k];a.appendChild(dot);a.appendChild(document.createTextNode(k+" "+Math.round(by[k]/mout*100)+"%"));d.appendChild(a);d.appendChild(el("span","",rp(by[k])));lg.appendChild(d);});
+  sv+='<text x="60" y="58" text-anchor="middle" font-size="7" fill="var(--mute)">Keluar</text><text x="60" y="69" text-anchor="middle" font-size="9" font-weight="700" fill="var(--ink)">'+(mout>=1e6?(mout/1e6).toFixed(1).replace(".",",")+" jt":Math.round(mout/1000)+" rb")+'</text>';
+  $("donut").innerHTML=sv;
+  if(!keys.length)lg.appendChild(el("p","mu","Belum ada pengeluaran bulan ini."));
+  // bars
+  var days=[],i,mx=1,bs="";
+  for(i=6;i>=0;i--){var d0=new Date(now.getFullYear(),now.getMonth(),now.getDate()-i),k=ds(d0),s=0;S.tx.forEach(function(t){if(t.type==="out"&&t.date===k)s+=t.amount;});days.push({s:s,w:d0.toLocaleDateString("id-ID",{weekday:"short"}).slice(0,3),t:i===0});if(s>mx)mx=s;}
+  days.forEach(function(d,j){var h=Math.max(d.s/mx*78,d.s?3:1),x=6+j*40;bs+='<rect class="'+(d.t?"t":"")+'" x="'+x+'" y="'+(92-h)+'" width="28" height="'+h+'" rx="5"/><text x="'+(x+14)+'" y="108">'+d.w+'</text>';});
+  $("bars").innerHTML=bs;$("bars").setAttribute("class","bars"+(fr?" go":""));
+  var T=$("tiles");T.innerHTML="";
+  [["Rata-rata harian",rp(mout/day)],["Proyeksi akhir bulan",rp(mout/day*dim)],["Terbesar",big?rp(big.amount):"-"],["Kategori teratas",keys[0]?ICON[keys[0]]+" "+keys[0]:"-"]].forEach(function(r){var t=el("div","tile");t.appendChild(el("span","",r[0]));t.appendChild(el("b","",r[1]));T.appendChild(t);});
+  // goal
+  var g=S.goal,gp=g.target>0?Math.min(g.saved/g.target,1):0,surplus=min-mout;
+  $("gfill").style.width=gp*100+"%";
+  var gt=rp(g.saved)+" dari "+rp(g.target)+" ("+Math.round(gp*100)+"%)";
+  if(g.target>g.saved&&surplus>0)gt+=". Dengan surplus bulan ini, tercapai sekitar "+Math.ceil((g.target-g.saved)/surplus)+" bulan lagi.";
+  else if(g.target>0&&g.saved>=g.target)gt+=". Target tercapai!";
+  $("gtxt").textContent=gt;
+  // tips cerdas
+  var tp=[],tk=keys[0];
+  if(mo===0&&B&&mout>B)tp.push(["🚨","Anggaran bulanan sudah terlampaui "+rp(mout-B)+". Tunda pembelian yang belum mendesak."]);
+  else if(mo===0&&B&&mout>B*pace*1.15)tp.push(["⚡","Pengeluaran lebih cepat dari ritme anggaran. Kurangi belanja non-wajib beberapa hari ke depan."]);
+  if(min>0){var rt=(min-mout)/min;tp.push(rt>=.2?["✅","Rasio tabungmu "+Math.round(rt*100)+"%, di atas target sehat 20%. Pertahankan."]:["💰","Rasio tabungmu "+Math.round(rt*100)+"%. Targetkan minimal 20% dari pemasukan."]);}
+  if(tk&&mout>0&&by[tk]/mout>=.4)tp.push([ICON[tk],tk+" menyedot "+Math.round(by[tk]/mout*100)+"% pengeluaran. Cek apakah ada yang bisa dihemat."]);
+  Object.keys(S.lim).forEach(function(c){var l=S.lim[c];if(l&&(by[c]||0)>l)tp.push(["🔔","Batas "+c+" terlewat "+rp(by[c]-l)+"."]);});
+  if(mo===0)S.bills.forEach(function(b){var n=b.day>=day?b.day-day:dim-day+b.day;if(n<=3)tp.push(["🗓️","Tagihan "+b.name+" jatuh tempo "+(n===0?"hari ini":n+" hari lagi")+" ("+rp(b.amount)+")."]);});
+  if(!tp.length)tp.push(["💡","Catat transaksi harianmu agar tips yang muncul makin tepat."]);
+  var TL=$("tips");TL.innerHTML="";
+  tp.slice(0,5).forEach(function(r){var li=el("li"),ic=el("div","ic",r[0]),m=el("div","m");ic.style.background="#F2B33D33";m.appendChild(el("b","",r[1]));li.appendChild(ic);li.appendChild(m);TL.appendChild(li);});
+  // dompet
+  var wb={Tunai:0,Bank:0,"E-wallet":0},WI={Tunai:"💵",Bank:"🏦","E-wallet":"📱"},W=$("wals");W.innerHTML="";
+  S.tx.forEach(function(t){var w=t.w||"Tunai";wb[w]+=t.type==="in"?t.amount:-t.amount;});
+  Object.keys(wb).forEach(function(k){var c=el("div","chip");c.appendChild(el("span","lbl",WI[k]+" "+k));c.appendChild(el("b","",rp(wb[k])));W.appendChild(c);});
+  // batas
+  var LM=$("lims");LM.innerHTML="";
+  CATS.out.forEach(function(c){var sp=by[c]||0,l=S.lim[c]||0,r=el("div","lim"),h=el("div","lh"),inp=el("input");
+    inp.inputMode="numeric";inp.placeholder="Batas (Rp)";inp.setAttribute("aria-label","Batas "+c);inp.value=l?nf(l):"";
+    inp.onchange=function(){S.lim[c]=num(this.value);save();render();};
+    h.appendChild(el("span","",ICON[c]+" "+c));h.appendChild(inp);r.appendChild(h);
+    var b=el("div","gbar"),f=el("i");f.style.width=(l?Math.min(sp/l,1)*100:0)+"%";if(l&&sp>l)f.style.background="var(--out)";b.appendChild(f);r.appendChild(b);
+    r.appendChild(el("div","mu",l?rp(sp)+" dari "+rp(l)+(sp>l?", lewat "+rp(sp-l):", sisa "+rp(l-sp)):rp(sp)+" terpakai, belum ada batas"));LM.appendChild(r);});
+  // tagihan
+  var BL=$("bl");BL.innerHTML="";
+  S.bills.map(function(b){return{b:b,n:b.day>=day?b.day-day:dim-day+b.day};}).sort(function(a,c){return a.n-c.n;}).forEach(function(o){
+    var b=o.b,li=el("li"),ic=el("div","ic","🔔"),m=el("div","m"),x=el("button","del","\u00D7"),p=el("button","sm","Bayar");
+    ic.style.background="#F2B33D33";m.appendChild(el("b","",b.name));m.appendChild(el("span",o.n<=3?"out":"","Tanggal "+b.day+", "+(o.n===0?"hari ini":o.n+" hari lagi")));
+    p.type=x.type="button";x.setAttribute("aria-label","Hapus tagihan "+b.name);
+    x.onclick=function(){S.bills=S.bills.filter(function(q){return q.id!==b.id;});save();render();};
+    p.onclick=function(){S.tx.push({id:Date.now(),type:"out",amount:b.amount,cat:"Tagihan",note:b.name,date:ds(new Date()),w:"Bank"});save();render();};
+    li.appendChild(ic);li.appendChild(m);li.appendChild(el("div","amt",rp(b.amount)));li.appendChild(p);li.appendChild(x);BL.appendChild(li);});
+  if(!S.bills.length)BL.appendChild(el("li","mu","Belum ada tagihan rutin. Tambahkan listrik, internet, atau cicilan."));
+  // list
+  var L=$("list");L.innerHTML="";
+  var qv=$("q").value.trim().toLowerCase(),arr=S.tx.filter(function(t){return(filt==="all"||t.type===filt)&&(!qv||((t.note||"")+" "+t.cat).toLowerCase().indexOf(qv)>-1);}).sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:b.id-a.id;});
+  $("demo").hidden=S.tx.length>0;
+  if(!arr.length)L.appendChild(el("li","mu","Belum ada transaksi."));
+  arr.slice(0,40).forEach(function(t){
+    var li=el("li"),ic=el("div","ic",ICON[t.cat]||"📌");ic.style.background=(COL[t.cat]||"#2FBF71")+"33";
+    var m=el("div","m");m.appendChild(el("b","",t.note||t.cat));
+    m.appendChild(el("span","",t.cat+", "+(t.w||"Tunai")+", "+new Date(t.date+"T00:00:00").toLocaleDateString("id-ID",{day:"numeric",month:"short"})));
+    var x=el("button","del","\u00D7");x.type="button";x.setAttribute("aria-label","Hapus transaksi "+(t.note||t.cat));
+    x.onclick=function(){S.tx=S.tx.filter(function(q){return q.id!==t.id;});save();render();};
+    li.appendChild(ic);li.appendChild(m);li.appendChild(el("div","amt "+t.type,(t.type==="in"?"+":"-")+rp(t.amount)));li.appendChild(x);L.appendChild(li);
+  });
+}
+$("tOut").onclick=function(){setType("out");};
+$("tIn").onclick=function(){setType("in");};
+$("save").onclick=function(){
+  var v=num($("amount").value),m=$("msg");
+  if(v<=0){m.textContent="Isi jumlah lebih dari 0 dulu.";$("amount").focus();return;}
+  S.tx.push({id:Date.now(),type:type,amount:v,cat:$("cat").value,note:$("note").value.trim(),date:$("date").value||ds(new Date()),w:$("wal").value});
+  $("amount").value="";$("note").value="";m.textContent="Transaksi tersimpan.";save();render();
 };
-
-let S = {
-    tx: [],
-    budget: 3000000,
-    goal: {
-        name: "Dana darurat",
-        target: 5000000,
-        saved: 0
-    }
+$("budget").onchange=function(){S.budget=num(this.value);this.value=S.budget?nf(S.budget):"";save();render();};
+$("gname").onchange=function(){S.goal.name=this.value.trim()||"Target tabungan";save();};
+$("gtarget").onchange=function(){S.goal.target=num(this.value);this.value=S.goal.target?nf(S.goal.target):"";save();render();};
+$("gbtn").onclick=function(){var v=num($("gadd").value);if(!v)return;S.goal.saved+=v;$("gadd").value="";save();render();};
+$("theme").onclick=function(){var r=document.documentElement,d=r.getAttribute("data-theme")==="dark"||(!r.getAttribute("data-theme")&&matchMedia("(prefers-color-scheme:dark)").matches);r.setAttribute("data-theme",d?"light":"dark");};
+Array.prototype.forEach.call(document.querySelectorAll("[data-f]"),function(b){b.onclick=function(){filt=b.getAttribute("data-f");Array.prototype.forEach.call(document.querySelectorAll("[data-f]"),function(o){o.setAttribute("aria-pressed",o===b);});render();};});
+$("demo").onclick=function(){
+  var n=Date.now(),now=new Date();
+  [["in","Gaji",4500000,"Gaji bulanan",0],["out","Tagihan",650000,"Listrik & internet",0],["out","Makanan",85000,"Makan siang",0],["out","Transportasi",60000,"Bensin",1],["out","Belanja",320000,"Belanja dapur",2],["out","Hiburan",120000,"Langganan streaming",3],["out","Makanan",45000,"Kopi & roti",4],["out","Kesehatan",90000,"Vitamin",5]].forEach(function(r,i){
+    S.tx.push({id:n+i,type:r[0],cat:r[1],amount:r[2],note:r[3],date:ds(new Date(now.getFullYear(),now.getMonth(),Math.max(now.getDate()-r[4],1)))});});
+  save();render();
 };
-
-let type = "out";
-let filter = "all";
-
-const $ = id => document.getElementById(id);
-
-const rupiah = n =>
-    "Rp " + Math.round(n).toLocaleString("id-ID");
-
-function load() {
-    try {
-        const data = JSON.parse(localStorage.getItem(KEY));
-
-        if (data && Array.isArray(data.tx)) {
-            S = { ...S, ...data };
-        }
-    } catch (e) {
-        console.error("Gagal membaca data", e);
-    }
-}
-
-function save() {
-    try {
-        localStorage.setItem(KEY, JSON.stringify(S));
-        return true;
-    } catch (e) {
-        alert("Gagal menyimpan data.");
-        return false;
-    }
-}
-
-function categories() {
-    $("cat").innerHTML = "";
-
-    CATS[type].forEach(cat => {
-        const option = document.createElement("option");
-        option.value = cat;
-        option.textContent = cat;
-        $("cat").appendChild(option);
-    });
-}
-
-function setType(value) {
-    type = value;
-
-    $("tOut").setAttribute(
-        "aria-pressed", value === "out"
-    );
-
-    $("tIn").setAttribute(
-        "aria-pressed", value === "in"
-    );
-
-    categories();
-}
-
-function totals() {
-    let income = 0;
-    let expense = 0;
-
-    S.tx.forEach(t => {
-        if (t.type === "in") income += t.amount;
-        else expense += t.amount;
-    });
-
-    return {
-        income,
-        expense,
-        balance: income - expense
-    };
-}
-
-function render() {
-    const total = totals();
-
-    $("saldo").textContent = rupiah(total.balance);
-
-    const now = new Date();
-    const month = now.getFullYear() + "-" +
-        String(now.getMonth() + 1).padStart(2, "0");
-
-    let incomeMonth = 0;
-    let expenseMonth = 0;
-
-    S.tx.forEach(t => {
-        if (t.date.startsWith(month)) {
-            if (t.type === "in") incomeMonth += t.amount;
-            else expenseMonth += t.amount;
-        }
-    });
-
-    $("inM").textContent = rupiah(incomeMonth);
-    $("outM").textContent = rupiah(expenseMonth);
-
-    $("rate").textContent =
-        incomeMonth > 0
-            ? Math.round((incomeMonth - expenseMonth) / incomeMonth * 100) + "%"
-            : "0%";
-
-    $("budget").value = S.budget.toLocaleString("id-ID");
-
-    const percent = S.budget > 0
-        ? Math.min(100, expenseMonth / S.budget * 100)
-        : 0;
-
-    $("fill").style.width = percent + "%";
-    $("fill").classList.toggle(
-        "over",
-        S.budget > 0 && expenseMonth > S.budget
-    );
-
-    $("insight").textContent =
-        S.budget > 0
-            ? "Pengeluaran bulan ini menggunakan " +
-              Math.round(expenseMonth / S.budget * 100) +
-              "% dari anggaran."
-            : "Atur anggaran bulananmu.";
-
-    $("tick").style.left =
-        ((now.getDate() / new Date(
-            now.getFullYear(),
-            now.getMonth() + 1,
-            0
-        ).getDate()) * 100) + "%";
-
-    renderWallets();
-    renderHistory();
-    renderGoal();
-}
-
-function renderWallets() {
-    const container = $("wals");
-    container.innerHTML = "";
-
-    ["Tunai", "Bank", "E-wallet"].forEach(wallet => {
-        const value = S.tx
-            .filter(t => t.wallet === wallet)
-            .reduce((sum, t) =>
-                sum + (t.type === "in" ? t.amount : -t.amount), 0);
-
-        const div = document.createElement("div");
-        div.className = "chip";
-
-        const label = document.createElement("span");
-        label.className = "lbl";
-        label.textContent = wallet;
-
-        const amount = document.createElement("b");
-        amount.textContent = rupiah(value);
-
-        div.append(label, amount);
-        container.appendChild(div);
-    });
-}
-
-function renderHistory() {
-    const container = $("history");
-    container.innerHTML = "";
-
-    let items = [...S.tx].sort(
-        (a, b) => b.created - a.created
-    );
-
-    if (filter !== "all") {
-        items = items.filter(t => t.type === filter);
-    }
-
-    if (!items.length) {
-        container.textContent = "Belum ada transaksi.";
-        container.className = "empty";
-        return;
-    }
-
-    container.className = "";
-
-    items.forEach(t => {
-        const row = document.createElement("div");
-        row.className = "item";
-
-        const left = document.createElement("div");
-
-        const title = document.createElement("strong");
-        title.textContent = t.note || t.cat;
-
-        const detail = document.createElement("small");
-        detail.textContent =
-            t.cat + " • " + t.wallet + " • " + t.date;
-
-        left.append(title, detail);
-
-        const right = document.createElement("div");
-
-        const amount = document.createElement("strong");
-        amount.className =
-            t.type === "in" ? "plus" : "minus";
-
-        amount.textContent =
-            (t.type === "in" ? "+" : "-") + rupiah(t.amount);
-
-        const del = document.createElement("button");
-        del.className = "del";
-        del.textContent = "Hapus";
-
-        del.addEventListener("click", () => {
-            if (!confirm("Hapus transaksi ini?")) return;
-
-            const old = S.tx;
-            S.tx = S.tx.filter(x => x.id !== t.id);
-
-            if (!save()) {
-                S.tx = old;
-                return;
-            }
-
-            render();
-        });
-
-        right.append(amount, del);
-        row.append(left, right);
-        container.appendChild(row);
-    });
-}
-
-function addTransaction() {
-    const amount = parseInt(
-        $("amount").value.replace(/\D/g, ""), 10
-    );
-
-    if (!Number.isSafeInteger(amount) || amount <= 0) {
-        alert("Masukkan jumlah yang valid.");
-        return;
-    }
-
-    const date = $("date").value;
-
-    if (!date) {
-        alert("Pilih tanggal transaksi.");
-        return;
-    }
-
-    const item = {
-        id: Date.now().toString() +
-            Math.random().toString(36).slice(2),
-        amount,
-        type,
-        cat: $("cat").value,
-        date,
-        wallet: $("wal").value,
-        note: $("note").value.trim(),
-        created: Date.now()
-    };
-
-    S.tx.push(item);
-
-    if (!save()) {
-        S.tx.pop();
-        return;
-    }
-
-    $("amount").value = "";
-    $("note").value = "";
-
-    render();
-    alert("Transaksi berhasil disimpan.");
-}
-
-function renderGoal() {
-    $("goalName").value = S.goal.name;
-    $("goalTarget").value =
-        S.goal.target.toLocaleString("id-ID");
-    $("goalSaved").value =
-        S.goal.saved.toLocaleString("id-ID");
-
-    const percent = S.goal.target > 0
-        ? Math.min(100, S.goal.saved / S.goal.target * 100)
-        : 0;
-
-    $("goalProgress").textContent =
-        "Tercapai " + Math.round(percent) + "% • " +
-        rupiah(S.goal.saved) + " dari " +
-        rupiah(S.goal.target);
-}
-
-function saveGoal() {
-    const target = parseInt(
-        $("goalTarget").value.replace(/\D/g, ""), 10
-    );
-
-    const saved = parseInt(
-        $("goalSaved").value.replace(/\D/g, ""), 10
-    );
-
-    if (
-        !Number.isSafeInteger(target) || target <= 0 ||
-        !Number.isSafeInteger(saved) || saved < 0
-    ) {
-        alert("Periksa nominal target dan tabungan.");
-        return;
-    }
-
-    const old = S.goal;
-
-    S.goal = {
-        name: $("goalName").value.trim() || "Target tabungan",
-        target,
-        saved
-    };
-
-    if (!save()) {
-        S.goal = old;
-        return;
-    }
-
-    renderGoal();
-    alert("Target tabungan disimpan.");
-}
-
-function exportCSV() {
-    const rows = [
-        ["Tanggal", "Jenis", "Kategori", "Dompet", "Catatan", "Jumlah"]
-    ];
-
-    S.tx.forEach(t => {
-        rows.push([
-            t.date,
-            t.type === "in" ? "Pemasukan" : "Pengeluaran",
-            t.cat,
-            t.wallet,
-            t.note,
-            t.amount
-        ]);
-    });
-
-    const csv = rows.map(row =>
-        row.map(value =>
-            '"' + String(value).replace(/"/g, '""') + '"'
-        ).join(",")
-    ).join("\n");
-
-    const blob = new Blob(
-        ["\uFEFF" + csv],
-        { type: "text/csv;charset=utf-8" }
-    );
-
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-
-    a.href = url;
-    a.download = "laporan-dompet-cerdas.csv";
-    a.click();
-
-    URL.revokeObjectURL(url);
-}
-
-$("tOut").addEventListener("click", () => setType("out"));
-$("tIn").addEventListener("click", () => setType("in"));
-
-$("add").addEventListener("click", addTransaction);
-$("saveGoal").addEventListener("click", saveGoal);
-$("export").addEventListener("click", exportCSV);
-
-$("filter").addEventListener("change", event => {
-    filter = event.target.value;
-    renderHistory();
-});
-
-$("budget").addEventListener("change", () => {
-    const value = parseInt(
-        $("budget").value.replace(/\D/g, ""), 10
-    );
-
-    if (!Number.isSafeInteger(value) || value < 0) {
-        alert("Anggaran tidak valid.");
-        return;
-    }
-
-    S.budget = value;
-    save();
-    render();
-});
-
-$("theme").addEventListener("click", () => {
-    const dark =
-        document.documentElement.dataset.theme !== "dark";
-
-    document.documentElement.dataset.theme =
-        dark ? "dark" : "light";
-
-    localStorage.setItem(
-        "dompet-theme",
-        dark ? "dark" : "light"
-    );
-});
-
+document.addEventListener("input",function(e){var t=e.target;if(!t||t.inputMode!=="numeric"||t.id==="bd")return;
+  var pos=t.selectionStart,d=t.value.slice(0,pos).replace(/\D/g,"").length,n=num(t.value);t.value=n?nf(n):"";
+  var c=0,i=0;for(;i<t.value.length&&c<d;i++){if(/\d/.test(t.value[i]))c++;}try{t.setSelectionRange(i,i);}catch(x){}});
+$("mp").onclick=function(){mo--;render();};$("mn").onclick=function(){if(mo<0){mo++;render();}};
+$("q").oninput=render;
+$("bb").onclick=function(){var n=$("bn").value.trim(),a=num($("ba").value),d=Math.min(num($("bd").value),31);if(!n||!a||!d)return;S.bills.push({id:Date.now(),name:n,amount:a,day:d});$("bn").value=$("ba").value=$("bd").value="";save();render();};
+$("csv").onclick=function(){var t="tanggal,jenis,kategori,dompet,jumlah,catatan\n"+S.tx.map(function(x){return [x.date,x.type==="in"?"masuk":"keluar",x.cat,x.w||"Tunai",x.amount,'"'+String(x.note||"").replace(/"/g,'""')+'"'].join(",");}).join("\n"),m=$("tmsg"),bad=function(){m.textContent="Tidak bisa menyalin otomatis dari halaman ini.";};
+  try{navigator.clipboard.writeText(t).then(function(){m.textContent="CSV disalin. Tempel ke Excel atau Google Sheets.";},bad);}catch(e){bad();}};
+var arm=0;$("rst").onclick=function(){if(!arm){arm=1;this.textContent="Klik lagi untuk menghapus";return;}S.tx=[];S.lim={};S.bills=[];S.goal.saved=0;arm=0;this.textContent="Hapus semua data";save();render();};
+var stOK=true;try{localStorage.setItem("_t","1");localStorage.removeItem("_t");}catch(e){stOK=false;}
+if(!stOK)$("stor").hidden=false;
 load();
-
-const savedTheme = localStorage.getItem("dompet-theme");
-
-if (savedTheme) {
-    document.documentElement.dataset.theme = savedTheme;
-}
-
-$("date").value =
-    new Date().toLocaleDateString("en-CA");
-
-categories();
-render();
-
+$("budget").value=S.budget?nf(S.budget):"";
+$("gname").value=S.goal.name;$("gtarget").value=S.goal.target?nf(S.goal.target):"";
+$("date").value=ds(new Date());
+fillCats();render();
 })();
-                       
+    
